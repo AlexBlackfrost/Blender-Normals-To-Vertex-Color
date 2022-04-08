@@ -46,7 +46,7 @@ class NormalsToVertexColors(bpy.types.Operator):
     space: EnumProperty(
         name="Space",
         items=space_items,
-        default='WORLD',
+        default='LOCAL',
     )
 
     swizzle_items = (
@@ -107,7 +107,9 @@ class NormalsToVertexColors(bpy.types.Operator):
                     normal = mesh.loops[loop_index].normal.copy()
                     if (self.space == 'WORLD'):
                         normal = current_obj.matrix_world.to_3x3() @ normal
-                        normal.normalize()
+                        #normal.normalize()
+                    
+                    normal.normalize()# I added this line to always normalize the normals no matter what space is selected
 
                     orig_normal = normal.copy()
                     self.swizzle(normal, orig_normal, 0, self.swizzle_x)
@@ -115,6 +117,7 @@ class NormalsToVertexColors(bpy.types.Operator):
                     self.swizzle(normal, orig_normal, 2, self.swizzle_z)
 
                     color = (normal * 0.5) + Vector((0.5,) * 3)
+
                     color.resize_4d()
 
                     mesh.vertex_colors.active.data[loop_index].color = color
